@@ -1,0 +1,31 @@
+const aws = require("aws-sdk")
+exports.handler = (event, context, callback) => {
+    // TODO implement
+    var sns = new aws.SNS();
+           
+    event.Records.forEach((record) => {
+        console.log('Item recebido do Stream: ', JSON.stringify(record, null, 2));
+        
+        if (record.eventName == 'INSERT') {
+            var what = JSON.stringify(record.dynamodb.NewImage.mensagem.S);
+            var params = {
+                Subject: what, 
+                Message: what,
+                PhoneNumber: '+5511998000000'
+            };
+            sns.publish(params, function(err, data) {
+                if (err) {
+                    console.error("Erro ao enviar Mensagem. Error JSON:", JSON.stringify(err, null, 2));
+                } else {
+                    console.log("Resultado do envio de mensagem: ", JSON.stringify(data, null, 2));
+                }
+            });
+        }
+    });
+    
+    const response = {
+        statusCode: 200,
+        body: JSON.stringify('Mensagem enviada'),
+    };
+    callback(null, response);
+};
